@@ -86,7 +86,8 @@
         "    COUNT(*)                                             AS pocet_setu,\r\n",
         "    ROUND(cena_czk / NULLIF(pocet_dilku, 0), 2)          AS cena_za_dilek_czk,\r\n",
         "    CASE WHEN cena_czk IS NOT NULL THEN pocet_dilku END  AS dilky_s_cenou,\r\n",
-        "    CASE WHEN ma_cenu THEN 'S cenou' ELSE 'Bez ceny' END AS cena_uvedena\r\n",
+        "    CASE WHEN ma_cenu THEN 'S cenou' ELSE 'Bez ceny' END AS cena_uvedena,\r\n",
+        "    CASE WHEN pocet_figurek >= 8 THEN '8+' ELSE CAST(pocet_figurek AS STRING) END AS skupina_figurek\r\n",
         "FROM workspace.lego_gold.sets_overview\r\n",
         "WHERE tema = 'Star Wars'\r\n",
         "    AND rok_vydani >= 2006\r\n",
@@ -535,7 +536,7 @@
                   "format": {
                     "type": "number-currency",
                     "currencyCode": "CZK",
-                    "abbreviation": "compact",
+                    "abbreviation": "none",
                     "decimalPlaces": {
                       "type": "max",
                       "places": 2
@@ -545,6 +546,9 @@
                   "scale": {
                     "type": "quantitative"
                   }
+                },
+                "label": {
+                  "show": true
                 }
               },
               "data": {
@@ -616,6 +620,9 @@
                   "scale": {
                     "type": "quantitative"
                   }
+                },
+                "label": {
+                  "show": true
                 }
               },
               "data": {
@@ -810,6 +817,9 @@
                   "scale": {
                     "type": "quantitative"
                   }
+                },
+                "label": {
+                  "show": true
                 }
               },
               "data": {
@@ -1022,6 +1032,9 @@
                   "scale": {
                     "type": "quantitative"
                   }
+                },
+                "label": {
+                  "show": false
                 }
               },
               "data": {
@@ -1202,6 +1215,195 @@
             "y": 0,
             "width": 3,
             "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "cena-setu-podle-poctu-figurek",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "sum(pocet_setu)",
+                      "expression": "SUM(`pocet_setu`)"
+                    },
+                    {
+                      "name": "skupina_figurek",
+                      "expression": "`skupina_figurek`"
+                    },
+                    {
+                      "name": "median(cena_czk)",
+                      "expression": "MEDIAN(`cena_czk`)"
+                    },
+                    {
+                      "name": "avg(cena_czk)",
+                      "expression": "AVG(`cena_czk`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": true,
+                "title": {
+                  "value": "Cena setu podle počtu figurek (Kč)",
+                  "fields": []
+                },
+                "description": {
+                  "value": "0 figurek = hlavně sběratelské modely (helmy, UCS, buildable figures), proto je vyšší cena než u setů s 1–4 figurkami.",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "mark": {
+                "layout": "group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "skupina_figurek",
+                  "axis": {
+                    "hideTitle": true
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "axis": {
+                    "hideTitle": true
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "median(cena_czk)",
+                      "displayName": "Medián ceny"
+                    },
+                    {
+                      "fieldName": "avg(cena_czk)",
+                      "displayName": "Průměrná cena"
+                    }
+                  ],
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "CZK",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                },
+                "label": {
+                  "show": true
+                },
+                "extra": [
+                  {
+                    "fieldName": "sum(pocet_setu)",
+                    "displayName": "Počet setů"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 23,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "cena-za-dilek-podle-poctu-figurek",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "skupina_figurek",
+                      "expression": "`skupina_figurek`"
+                    },
+                    {
+                      "name": "measure(cena_za_dilek_vazena)",
+                      "expression": "MEASURE(`cena_za_dilek_vazena`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": true,
+                "title": {
+                  "value": "Cena za dílek podle počtu figurek (Kč)",
+                  "fields": []
+                },
+                "description": {
+                  "value": "Cena za dílek je stabilní (\\~3 Kč) bez ohledu na počet figurek. Sety s víc figurkami jsou dražší, protože jsou větší.",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "skupina_figurek",
+                  "axis": {
+                    "hideTitle": true
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(cena_za_dilek_vazena)",
+                  "axis": {
+                    "hideTitle": true
+                  },
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "CZK",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  },
+                  "displayName": "Cena za dílek",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 23,
+            "width": 6,
+            "height": 6
           }
         }
       ],

@@ -22,6 +22,10 @@ End-to-end data pipeline on Databricks that ingests LEGO set data, cleans and jo
 ![Star Wars sets – overview](docs/dashboard_star_wars_1.png)
 ![Star Wars sets – totals and price per piece](docs/dashboard_star_wars_2.png)
 
+**Price vs. number of minifigures** – sets with more minifigures cost more, but the price per piece stays the same
+
+![Price vs. number of minifigures](docs/dashboard_star_wars_3.png)
+
 **Minifigure catalog** – search a minifigure and see every set it appears in
 
 ![Minifigure catalog](docs/dashboard_minifigs.png)
@@ -30,10 +34,10 @@ End-to-end data pipeline on Databricks that ingests LEGO set data, cleans and jo
 
 ## Key findings (Star Wars, 2006–2026)
 
-1. **The typical set nearly doubled in price** – median price rose from **907 Kč** (2008–2019) to **1 710 Kč** (2021–2026). The jump happened around 2020 (median 770 Kč in 2019 → 1 586 Kč in 2020) and has stayed at ~1 700 Kč since 2022.
-2. **…but bricks did not get more expensive** – the weighted price per piece stayed flat (**3.05 Kč → 2.92 Kč**), while the average set grew from **354 to 527 pieces (+49 %)**. Sets cost more because they are bigger.
+1. **The typical set nearly doubled in price** – median price rose from **911 Kč** (2006–2019) to **1 700 Kč** (2020–2026), +87 %. The jump happened in 2020 (median 770 Kč in 2019 → 1 586 Kč in 2020) and has stayed at ~1 700 Kč since 2022.
+2. **…but bricks did not get more expensive** – the weighted price per piece stayed flat (**2.98 Kč → 2.95 Kč**), while the average priced set grew from **525 to 825 pieces (+57 %)**. Sets cost more because they are bigger.
 3. **Price per piece peaked in 2016** at 3.49 Kč and has been between 2.8 and 3.1 Kč since 2021.
-4. **A few large sets pull the average up** – in 2021–2026 the average price (2 525 Kč) is ~48 % above the median, driven by Ultimate Collector Series sets. The median is the better measure of a typical set.
+4. **A few large sets pull the average up** – in 2020–2026 the average price (2 432 Kč) is ~43 % above the median, driven by Ultimate Collector Series sets. The median is the better measure of a typical set.
 5. **Minifigures do not add a price premium** – sets with more minifigures cost more (median 275 Kč with 1 minifigure vs. ~2 500 Kč with 6+), but the price per piece is 2.7–3.1 Kč in every group. More minifigures simply come with bigger sets.
 6. **Output quadrupled** – total pieces released per year grew from 7 205 (2006) to 29 847 (2025); the number of sets peaked in 2015–2018 (62–68 sets per year).
 
