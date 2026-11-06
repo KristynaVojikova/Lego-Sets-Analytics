@@ -30,7 +30,7 @@ SELECT
     s.originalni_cislo,
     s.tema,
     im.fig_num                        AS cislo_figurky,
-    m.name                            AS nazev_figurky,
+    TRIM(m.name)                      AS nazev_figurky,
     TRY_CAST(im.quantity AS INT)      AS pocet_kusu,
     TRY_CAST(m.num_parts AS INT)      AS dilku_figurky,
     m.img_url                         AS obrazek_figurky

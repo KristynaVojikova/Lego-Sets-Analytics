@@ -45,7 +45,7 @@ joined AS (
     SELECT
         r.set_num                          AS originalni_cislo,
         split_part(r.set_num, '-', 1)      AS cislo_setu,
-        r.name                             AS nazev_stavebnice,
+        TRIM(r.name)                       AS nazev_stavebnice,
         TRY_CAST(r.year AS INT)            AS rok_vydani,
         r.query_tema                       AS tema,
         b.subtheme                         AS podtema,
