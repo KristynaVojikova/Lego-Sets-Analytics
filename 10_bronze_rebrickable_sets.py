@@ -1,8 +1,4 @@
 # Databricks notebook source
-# /// script
-# [tool.databricks.environment]
-# environment_version = "6"
-# ///
 # MAGIC %md
 # MAGIC # 10 – Bronze: Rebrickable sets
 # MAGIC Stáhne sety pro Star Wars, Ninjago (do roku 2013) a všechna Botanical témata z Rebrickable API.
@@ -53,21 +49,46 @@ def get_all_pages(url, params=None):
 
 # MAGIC %md
 # MAGIC ## Konfigurace dotazů
-# MAGIC `tema` se ukládá k datům už tady. Silver pak nemusí odhadovat téma podle `theme_id`
-# MAGIC (pokud API vrací i podtémata, mají jiné `theme_id` než 158 / 435).
+# MAGIC Rebrickable `sets/?theme_id=X` vrací jen sety přímo v tématu X, **ne v podtématech**
+# MAGIC (např. Star Wars → Ultimate Collector Series). Proto se stahuje celý strom:
+# MAGIC kořenové téma + všechna témata s klíčovým slovem v názvu (např. Technic → Star Wars)
+# MAGIC + všechna jejich podtémata. `tema` se ukládá k datům už tady.
 
 # COMMAND ----------
 
 themes = get_all_pages(f"{BASE_URL}/themes/", {"page_size": 1000})
-botanical_ids = [t["id"] for t in themes if "botanical" in t["name"].lower()]
-if not botanical_ids:
-    raise ValueError("Nenašlo se žádné Botanical téma – zkontroluj názvy témat v API.")
-print(f"Botanical theme IDs: {botanical_ids}")
+theme_names = {t["id"]: t["name"] for t in themes}
+children = {}
+for t in themes:
+    children.setdefault(t["parent_id"], []).append(t["id"])
 
-query_configs = [
-    {"tema": "Star Wars", "theme_id": 158, "max_year": None},
-    {"tema": "Ninjago",   "theme_id": 435, "max_year": 2013},
-] + [{"tema": "Botanical Collection", "theme_id": b_id, "max_year": None} for b_id in botanical_ids]
+
+def theme_tree(root_ids, keyword):
+    """Kořenová témata + témata s keyword v názvu + všechna jejich podtémata (rekurzivně)."""
+    roots = set(root_ids) | {t["id"] for t in themes if keyword in t["name"].lower()}
+    result, stack = set(), list(roots)
+    while stack:
+        theme_id = stack.pop()
+        if theme_id in result:
+            continue
+        result.add(theme_id)
+        stack.extend(children.get(theme_id, []))
+    return sorted(result)
+
+
+TEMA_CONFIG = [
+    {"tema": "Star Wars",            "roots": [158], "keyword": "star wars", "max_year": None},
+    {"tema": "Ninjago",              "roots": [435], "keyword": "ninjago",   "max_year": 2013},
+    {"tema": "Botanical Collection", "roots": [],    "keyword": "botanical", "max_year": None},
+]
+
+query_configs = []
+for cfg in TEMA_CONFIG:
+    ids = theme_tree(cfg["roots"], cfg["keyword"])
+    if not ids:
+        raise ValueError(f"Nenašlo se žádné téma pro {cfg['tema']} – zkontroluj názvy témat v API.")
+    print(f"{cfg['tema']}: {[f'{i} {theme_names[i]}' for i in ids]}")
+    query_configs += [{"tema": cfg["tema"], "theme_id": i, "max_year": cfg["max_year"]} for i in ids]
 
 # COMMAND ----------
 

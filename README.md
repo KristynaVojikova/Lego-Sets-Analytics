@@ -71,6 +71,7 @@ setup_schemas ─┬─► bronze_rebrickable ─┐
 ## Design decisions
 
 - **Bronze stores raw data as strings** plus ingestion metadata (`_source`, `_ingested_at`); typing happens in silver with `TRY_CAST`, so a malformed value never breaks ingestion.
+- **Full theme tree is downloaded** – Rebrickable `theme_id` filter does not include sub-themes (e.g. Star Wars → Ultimate Collector Series), so all descendant themes and themes named after the franchise (e.g. Technic → Star Wars) are queried.
 - **Theme is captured at ingestion** (`query_tema`) rather than derived from `theme_id`, which is unreliable when the API returns sub-themes.
 - **Deduplication in silver** – Botanical sets are queried through several Brickset theme configurations, so duplicates are removed before the join.
 - **Minifigures via CSV export instead of per-set API calls** – reduces runtime from ~25 minutes to seconds.
