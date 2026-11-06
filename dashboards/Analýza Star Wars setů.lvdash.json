@@ -1,0 +1,1218 @@
+{
+  "datasets": [
+    {
+      "name": "a9c9d882",
+      "displayName": "figurky_hledani",
+      "queryLines": [
+        "SELECT\r\n",
+        "    nazev_figurky,\r\n",
+        "    obrazek_figurky,\r\n",
+        "    cislo_figurky,\r\n",
+        "    pocet_kusu,\r\n",
+        "    nazev_stavebnice,\r\n",
+        "    cislo_setu,\r\n",
+        "    tema,\r\n",
+        "    rok_vydani,\r\n",
+        "    puvodni_cena_eur,\r\n",
+        "    set_img_url\r\n",
+        "FROM workspace.lego_gold.minifigs_in_sets\r\n",
+        "WHERE nazev_figurky ILIKE CONCAT('%', :hledat_figurku, '%')\r\n",
+        "ORDER BY nazev_figurky, rok_vydani"
+      ],
+      "parameters": [
+        {
+          "displayName": "hledat_figurku",
+          "keyword": "hledat_figurku",
+          "dataType": "STRING",
+          "defaultSelection": {
+            "values": {
+              "dataType": "STRING",
+              "values": [
+                {
+                  "value": "%"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "27feeb94",
+      "displayName": "figurky_katalog",
+      "queryLines": [
+        "SELECT\r\n",
+        "    nazev_figurky,\r\n",
+        "    obrazek_figurky,\r\n",
+        "    tema,\r\n",
+        "    v_kolika_setech,\r\n",
+        "    prvni_rok,\r\n",
+        "    posledni_rok,\r\n",
+        "    sety\r\n",
+        "FROM workspace.lego_gold.minifigs_catalog\r\n",
+        "WHERE nazev_figurky ILIKE CONCAT('%', :hledat_figurku, '%')\r\n",
+        "ORDER BY nazev_figurky, prvni_rok, v_kolika_setech DESC"
+      ],
+      "parameters": [
+        {
+          "displayName": "hledat_figurku",
+          "keyword": "hledat_figurku",
+          "dataType": "STRING",
+          "defaultSelection": {
+            "values": {
+              "dataType": "STRING",
+              "values": [
+                {
+                  "value": "%"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5a0f2c2f",
+      "displayName": "star_wars_sety",
+      "queryLines": [
+        "SELECT\r\n",
+        "    cislo_setu,\r\n",
+        "    nazev_stavebnice,\r\n",
+        "    rok_vydani,\r\n",
+        "    cena_czk,\r\n",
+        "    pocet_dilku,\r\n",
+        "    pocet_figurek,\r\n",
+        "    set_img_url,\r\n",
+        "    COUNT(*)                                             AS pocet_setu,\r\n",
+        "    ROUND(cena_czk / NULLIF(pocet_dilku, 0), 2)          AS cena_za_dilek_czk,\r\n",
+        "    CASE WHEN cena_czk IS NOT NULL THEN pocet_dilku END  AS dilky_s_cenou,\r\n",
+        "    CASE WHEN ma_cenu THEN 'S cenou' ELSE 'Bez ceny' END AS cena_uvedena\r\n",
+        "FROM workspace.lego_gold.sets_overview\r\n",
+        "WHERE tema = 'Star Wars'\r\n",
+        "    AND rok_vydani >= 2006\r\n",
+        "GROUP BY cislo_setu, nazev_stavebnice, rok_vydani, cena_czk, pocet_dilku, pocet_figurek, set_img_url, ma_cenu\r\n",
+        "ORDER BY rok_vydani DESC, pocet_dilku DESC, pocet_figurek DESC"
+      ],
+      "columns": [
+        {
+          "displayName": "cena_za_dilek_vazena",
+          "description": "",
+          "expression": "  SUM(cena_czk) / SUM(dilky_s_cenou)"
+        }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "7763abe5",
+      "displayName": "Katalog minifigurek",
+      "layout": [
+        {
+          "widget": {
+            "name": "nazev-figurky",
+            "queries": [
+              {
+                "name": "parameter_dashboards/01f1d446f07b145e8333978add110311/datasets/01f1d44853811a26a2e6d88d652fc465_hledat_figurku",
+                "query": {
+                  "datasetName": "a9c9d882",
+                  "parameters": [
+                    {
+                      "name": "hledat_figurku",
+                      "keyword": "hledat_figurku"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "parameter_dashboards/01f1d446f07b145e8333978add110311/datasets/01f1d448867418509c90b4b9ea30ce7a_hledat_figurku",
+                "query": {
+                  "datasetName": "27feeb94",
+                  "parameters": [
+                    {
+                      "name": "hledat_figurku",
+                      "keyword": "hledat_figurku"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "showDescription": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Název figurky</span>",
+                  "fields": []
+                },
+                "description": {
+                  "value": "<span style=\"text-align:center;display:block;\">% = všechny</span>",
+                  "fields": []
+                }
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "parameterName": "hledat_figurku",
+                    "queryName": "parameter_dashboards/01f1d446f07b145e8333978add110311/datasets/01f1d44853811a26a2e6d88d652fc465_hledat_figurku"
+                  },
+                  {
+                    "parameterName": "hledat_figurku",
+                    "queryName": "parameter_dashboards/01f1d446f07b145e8333978add110311/datasets/01f1d448867418509c90b4b9ea30ce7a_hledat_figurku"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "3af21c88",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a9c9d882",
+                  "fields": [
+                    {
+                      "name": "nazev_figurky",
+                      "expression": "`nazev_figurky`"
+                    },
+                    {
+                      "name": "obrazek_figurky",
+                      "expression": "`obrazek_figurky`"
+                    },
+                    {
+                      "name": "nazev_stavebnice",
+                      "expression": "`nazev_stavebnice`"
+                    },
+                    {
+                      "name": "cislo_setu",
+                      "expression": "`cislo_setu`"
+                    },
+                    {
+                      "name": "set_img_url",
+                      "expression": "`set_img_url`"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`tema` IS NULL OR `tema` NOT IN ('Ninjago')"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "nazev_figurky",
+                    "displayName": "Název figurky"
+                  },
+                  {
+                    "fieldName": "obrazek_figurky",
+                    "displayName": "Obrázek figurky",
+                    "style": {
+                      "type": "image",
+                      "urlTemplate": "{{ @ }}",
+                      "width": {
+                        "type": "value",
+                        "value": 200
+                      },
+                      "height": {
+                        "type": "value",
+                        "value": 200
+                      }
+                    }
+                  },
+                  {
+                    "fieldName": "nazev_stavebnice",
+                    "displayName": "Název setu"
+                  },
+                  {
+                    "fieldName": "cislo_setu",
+                    "displayName": "Číslo setu"
+                  },
+                  {
+                    "fieldName": "set_img_url",
+                    "displayName": "Obrázek setu",
+                    "style": {
+                      "type": "image",
+                      "urlTemplate": "{{ @ }}",
+                      "width": {
+                        "type": "value",
+                        "value": 200
+                      }
+                    }
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 12,
+            "height": 12
+          }
+        },
+        {
+          "widget": {
+            "name": "cislo-setu",
+            "queries": [
+              {
+                "name": "dashboards/01f1d446f07b145e8333978add110311/datasets/01f1d44853811a26a2e6d88d652fc465_cislo_setu",
+                "query": {
+                  "datasetName": "a9c9d882",
+                  "fields": [
+                    {
+                      "name": "cislo_setu",
+                      "expression": "`cislo_setu`"
+                    },
+                    {
+                      "name": "cislo_setu_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Číslo setu</span>",
+                  "fields": []
+                }
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "cislo_setu",
+                    "queryName": "dashboards/01f1d446f07b145e8333978add110311/datasets/01f1d44853811a26a2e6d88d652fc465_cislo_setu"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 0,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "rok-vydani",
+            "queries": [
+              {
+                "name": "dashboards/01f1d446f07b145e8333978add110311/datasets/01f1d44853811a26a2e6d88d652fc465_rok_vydani",
+                "query": {
+                  "datasetName": "a9c9d882",
+                  "fields": [
+                    {
+                      "name": "rok_vydani",
+                      "expression": "`rok_vydani`"
+                    },
+                    {
+                      "name": "rok_vydani_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Rok vydání</span>",
+                  "fields": []
+                }
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "rok_vydani",
+                    "queryName": "dashboards/01f1d446f07b145e8333978add110311/datasets/01f1d44853811a26a2e6d88d652fc465_rok_vydani"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 0,
+            "width": 4,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "8ebab433",
+      "displayName": "Star Wars sety",
+      "layout": [
+        {
+          "widget": {
+            "name": "prumerna-cena-setu-za-rok",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "rok_vydani",
+                      "expression": "`rok_vydani`"
+                    },
+                    {
+                      "name": "median(cena_czk)",
+                      "expression": "MEDIAN(`cena_czk`)"
+                    },
+                    {
+                      "name": "avg(cena_czk)",
+                      "expression": "AVG(`cena_czk`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": true,
+                "title": {
+                  "value": "Cena setu: průměr vs. medián",
+                  "fields": []
+                },
+                "description": {
+                  "value": "<span style=\"font-size: 12px;\">Ceny přepočtené kurzem ČNB v roce vydání</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 1
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  }
+                ]
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "rok_vydani",
+                  "axis": {
+                    "hideTitle": true,
+                    "labelAngle": 90
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "axis": {
+                    "hideTitle": true
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "median(cena_czk)",
+                      "displayName": "Medián ceny"
+                    },
+                    {
+                      "fieldName": "avg(cena_czk)",
+                      "displayName": "Průměrná cena"
+                    }
+                  ],
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "CZK",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "celkova-cena-setu-za-rok",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "rok_vydani",
+                      "expression": "`rok_vydani`"
+                    },
+                    {
+                      "name": "sum(cena_czk)",
+                      "expression": "SUM(`cena_czk`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Součet cen setů vydaných v roce (Kč)",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "rok_vydani",
+                  "axis": {
+                    "hideTitle": true,
+                    "hideLabels": false,
+                    "labelAngle": 90
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(cena_czk)",
+                  "axis": {
+                    "hideTitle": true,
+                    "title": "Kč"
+                  },
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "CZK",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  },
+                  "displayName": "Celková cena",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "pocet-setu-vydanych-za-rok",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "rok_vydani",
+                      "expression": "`rok_vydani`"
+                    },
+                    {
+                      "name": "sum(pocet_setu)",
+                      "expression": "SUM(`pocet_setu`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": {
+                  "value": "Počet vydaných setů podle roku",
+                  "fields": []
+                },
+                "description": {
+                  "value": "\tZa vybrané období",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "rok_vydani",
+                  "axis": {
+                    "hideTitle": true,
+                    "labelAngle": 90
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(pocet_setu)",
+                  "axis": {
+                    "hideTitle": true
+                  },
+                  "displayName": "Počet setů",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "prumerny-pocet-dilku-na-set",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "rok_vydani",
+                      "expression": "`rok_vydani`"
+                    },
+                    {
+                      "name": "avg(pocet_dilku)",
+                      "expression": "AVG(`pocet_dilku`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": true,
+                "title": {
+                  "value": "Průměrný počet dílků v setu",
+                  "fields": []
+                },
+                "description": {
+                  "value": "2006–2007: málo vydaných setů, průměr zvedají UCS sety",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "rok_vydani",
+                  "axis": {
+                    "hideTitle": true,
+                    "labelAngle": 90
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "avg(pocet_dilku)",
+                  "axis": {
+                    "hideTitle": true
+                  },
+                  "displayName": "Průměrný počet dílků",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "ma-cenu",
+            "queries": [
+              {
+                "name": "dashboards/01f1d446f07b145e8333978add110311/datasets/01f1d5498b4e10d6b5141a5fabad92bc_cena_uvedena",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "cena_uvedena",
+                      "expression": "`cena_uvedena`"
+                    },
+                    {
+                      "name": "cena_uvedena_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:left;display:block\">Cena uvedena</span>",
+                  "fields": []
+                }
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "cena_uvedena",
+                    "queryName": "dashboards/01f1d446f07b145e8333978add110311/datasets/01f1d5498b4e10d6b5141a5fabad92bc_cena_uvedena"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "celkovy-pocet-dilku-za-rok-1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "rok_vydani",
+                      "expression": "`rok_vydani`"
+                    },
+                    {
+                      "name": "sum(pocet_dilku)",
+                      "expression": "SUM(`pocet_dilku`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Součet dílků ve všech setech vydaných v roce",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "rok_vydani",
+                  "axis": {
+                    "hideTitle": true,
+                    "labelAngle": 90
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(pocet_dilku)",
+                  "axis": {
+                    "hideTitle": true
+                  },
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  },
+                  "displayName": "Celkový počet dílků",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 17,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "5656a614",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "rok_vydani",
+                      "expression": "`rok_vydani`"
+                    },
+                    {
+                      "name": "median(pocet_figurek)",
+                      "expression": "MEDIAN(`pocet_figurek`)"
+                    },
+                    {
+                      "name": "avg(pocet_figurek)",
+                      "expression": "AVG(`pocet_figurek`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": true,
+                "title": {
+                  "value": "Počet figurek v setu: průměr vs. medián",
+                  "fields": []
+                },
+                "description": {
+                  "value": "<span style=\"font-size:12px\">Medián 1 od roku 2015 = většina setů jsou malé sety a polybagy s jednou figurkou</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "rok_vydani",
+                  "axis": {
+                    "hideTitle": true,
+                    "labelAngle": 90
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "axis": {
+                    "hideTitle": true
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "fields": [
+                    {
+                      "fieldName": "median(pocet_figurek)",
+                      "displayName": "Medián počtu figurek"
+                    },
+                    {
+                      "fieldName": "avg(pocet_figurek)",
+                      "displayName": "Průměrný počet figurek"
+                    }
+                  ]
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 7,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "rok1",
+            "queries": [
+              {
+                "name": "dashboards/01f1d446f07b145e8333978add110311/datasets/01f1d5498b4e10d6b5141a5fabad92bc_rok_vydani",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "min(rok_vydani)",
+                      "expression": "MIN(`rok_vydani`)"
+                    },
+                    {
+                      "name": "max(rok_vydani)",
+                      "expression": "MAX(`rok_vydani`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Rok\t",
+                  "fields": []
+                }
+              },
+              "widgetType": "range-slider",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "rok_vydani",
+                    "queryName": "dashboards/01f1d446f07b145e8333978add110311/datasets/01f1d5498b4e10d6b5141a5fabad92bc_rok_vydani"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 4,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "prumerna-cena-za-1-dilek",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "rok_vydani",
+                      "expression": "`rok_vydani`"
+                    },
+                    {
+                      "name": "measure(cena_za_dilek_vazena)",
+                      "expression": "MEASURE(`cena_za_dilek_vazena`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": true,
+                "title": {
+                  "value": "Průměrná cena za dílek (Kč)",
+                  "fields": []
+                },
+                "description": {
+                  "value": "<span style=\"font-size: 12px;\">Vážený průměr: součet cen / součet dílků</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "rok_vydani",
+                  "axis": {
+                    "hideTitle": true,
+                    "labelAngle": 90
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(cena_za_dilek_vazena)",
+                  "axis": {
+                    "hideTitle": true
+                  },
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "CZK",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  },
+                  "displayName": "Průměrná cena za 1 dílek",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 12,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "cena1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "sum(cena_czk)",
+                      "expression": "SUM(`cena_czk`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Cena všech setů (Kč)</span>",
+                  "fields": []
+                },
+                "description": {
+                  "value": "<span style=\"text-align:center;display:block;\">\tSoučet původních cen za vybrané období</span>",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(cena_czk)",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "CZK",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "pocet-setu1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "sum(pocet_setu)",
+                      "expression": "SUM(`pocet_setu`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "headerAlignment": "center",
+                "showDescription": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block;\">Počet vydaných setů</span>",
+                  "fields": []
+                },
+                "description": {
+                  "value": "Za vybrané období",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(pocet_setu)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 7,
+            "y": 0,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "pocet-figurek-ve-vydanych-setech-1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "5a0f2c2f",
+                  "fields": [
+                    {
+                      "name": "sum(pocet_figurek)",
+                      "expression": "SUM(`pocet_figurek`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block\">Počet figurek</span>",
+                  "fields": []
+                },
+                "description": {
+                  "value": "<span style=\"text-align:center;display:block;\">Za vybrané období</span>",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(pocet_figurek)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

@@ -9,6 +9,19 @@ End-to-end data pipeline on Databricks that ingests LEGO set data from two publi
 - Which are the largest and most expensive sets in each theme?
 - How much does the price of a set rise with the number of minifigures – and is it more than just the set size?
 
+## Dashboard
+
+**Star Wars sets** – number of sets, price (average vs. median), pieces and minifigures per year
+
+![Star Wars sets – overview](docs/dashboard_star_wars_1.png)
+![Star Wars sets – totals and price per piece](docs/dashboard_star_wars_2.png)
+
+**Minifigure catalog** – search a minifigure and see every set it appears in
+
+![Minifigure catalog](docs/dashboard_minifigs.png)
+
+> Prices are available from 2006 (Brickset only provides LEGO.com retail prices from that year).
+
 ## Architecture
 
 ```
